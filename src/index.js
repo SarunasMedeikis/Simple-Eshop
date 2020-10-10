@@ -3,12 +3,36 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
+import { BrowserRouter } from "react-router-dom"
+
+import Firebase , { FirebaseContext } from "./Components/Firebase";
+
+
+// For colours
+import { createMuiTheme, ThemeProvider } from "@material-ui/core";
+
+const theme = createMuiTheme({
+	palette: {
+		primary: {
+			main: "#bdbdbd",
+		},
+		secondary: {
+			main: "#ccff90",
+		},
+	},
+});
+
+
 
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
+	<BrowserRouter>
+		<ThemeProvider theme={theme}>
+			<FirebaseContext.Provider value={new Firebase()}>
+				<App />
+			</FirebaseContext.Provider>
+		</ThemeProvider>
+	</BrowserRouter>,
+	document.getElementById("root"),
 );
 
 // If you want your app to work offline and load faster, you can change
