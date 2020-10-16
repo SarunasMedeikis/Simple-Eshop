@@ -5,8 +5,8 @@ import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
-import { FirebaseContext } from "../Firebase"
-
+import {auth, addUserDataToDb} from "../Firebase/firebase"
+import { useHistory } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
     root:{
@@ -30,32 +30,48 @@ const INITIAL_STATE = {
 
 const SignUpPage = () => {
 	const classes = useStyles();
-    const [signUp, setSignUp] = React.useState(INITIAL_STATE);
+	const [signUp, setSignUp] = React.useState(INITIAL_STATE);
+	let history = useHistory();
+
+	const handleRedirect = () =>{
+		history.push("/profile")
+	}
     console.log(signUp)
-    React.useEffect(()=>{
-        console.log(signUp);
-    },[signUp])
     const handleChange = (event) =>{
         setSignUp({...signUp, [event.target.name]:event.target.value})
     }
-    const handleSubmit=(event,props) =>{
-             event.preventDefault();
-        props.firebase.doCreateUserWithEmailAndPassword(signUp.email, signUp.pw1).then(authUser => {
-            setSignUp(INITIAL_STATE);
-        }).catch(error => {
-            setSignUp({error})
-        })
-    }
+
+	const createUserWithEmailAndPasswordHandler =(event) => {
+		event.preventDefault();
+
+		auth.createUserWithEmailAndPassword(signUp.email, signUp.pw1).then(() =>{
+
+			addUserDataToDb({
+				email: signUp.email,
+				username: signUp.username,
+			});
+			//Redirect user back.
+			handleRedirect();
+		})
+			.catch((error) => {
+				setSignUp({
+					...signUp,
+					error: error,
+				});
+				console.error(error);
+			});
+
+		setSignUp(INITIAL_STATE);
+
+	}
 
     const isInvalid = signUp.pw1 !== signUp.pw2 ||
                     signUp.pw1 === "" ||
                     signUp.email === "" ||
                     signUp.username === "";
 	return (
-        <>
-        <FirebaseContext.Consumer>
-            {firebase => <form
-			onSubmit={handleSubmit}
+		<form
+			onSubmit={createUserWithEmailAndPasswordHandler}
 			noValidate
 			autoComplete='on'
 			className={classes.centerFlex}>
@@ -71,7 +87,7 @@ const SignUpPage = () => {
 					variant='outlined'
 					name='username'
 					value={signUp.username}
-                    onChange={handleChange}
+					onChange={handleChange}
 				/>
 				<TextField
 					required
@@ -108,14 +124,16 @@ const SignUpPage = () => {
 					value={signUp.pw2}
 					onChange={handleChange}
 				/>
-				<Button disabled={isInvalid} type="submit" variant='contained' color='primary'>
+				<Button
+					disabled={isInvalid}
+					type='submit'
+					variant='contained'
+					color='primary'>
 					Submit
 				</Button>
 			</div>
-            {signUp.error && <p>{signUp.error.message}</p>}
-		</form>}
-        </FirebaseContext.Consumer>
-		</>
+			{signUp.error && <p>{signUp.error.message}</p>}
+		</form>
 	);
 };
 

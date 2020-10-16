@@ -1,30 +1,24 @@
-import app from "firebase/app"
+import firebase from  "firebase/app"
 import "firebase/auth";
+import "firebase/firestore";
 
 const config = {
-	// Configs here
+ DATA HERE
 };
 
-class Firebase {
-	constructor() {
-		app.initializeApp(config);
 
-		this.auth = app.auth();
-	}
+firebase.initializeApp(config);
 
-	// AUTH
-
-	doCreateUserWithEmailAndPassword = (email, password) => 
-	this.auth.createUserWithEmailAndPassword(email, password);
-
-	doSignInWithEmailAndPassword = (email, password) => {
-		this.auth.signInWithEmailAndPassword(email, password);
-	}
-
-	doSignOut = () => this.auth.signOut();
-
-	doPasswordReset = email => this.auth.sendPasswordResetEmail(email);
-
-	dosPasswordUpdate = password => this.auth.currentUser.updatePassword(password);
+export const provider = new firebase.auth.GoogleAuthProvider();
+export const auth = firebase.auth();
+const db = firebase.firestore();
+export const addUserDataToDb = async (email, username) => {
+	await db.collection("users").doc().set(email,username).then(()=>{
+		console.log("Succesfully set user data to databse");
+	})
+	.catch(error => {
+		console.error("Issue submitting data to the server" + error);
+	})
 }
-export default Firebase;
+
+export default firebase;

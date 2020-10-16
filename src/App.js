@@ -1,15 +1,15 @@
-import { RouterSharp } from "@material-ui/icons";
-import React from "react";
+import React, { useContext } from "react";
 import Routes from "./Components/Routes";
 import {
 	BrowserRouter as Router,
 	Switch,
 	Route,
-	Link,
 } from "react-router-dom";
 import Navigation from "./Components/Navigation";
 import { makeStyles } from "@material-ui/core/styles";
 import Footer from "./Components/Footer";
+import PrivateRoute from "./Components/PrivateRoute";
+import {UserContext} from "./Providers/UserProvider"
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -19,6 +19,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function App() {
+	const user = useContext(UserContext);
+
 	const classes = useStyles();
 	return (
 		<div>
@@ -26,15 +28,28 @@ function App() {
 			<div className={classes.root}>
 				<Switch>
 					{Routes.map((destination,i) => {
-						return (
-							<Route
+						if(destination.publicRoute){
+							return <Route
 								key={i}
 								exact
 								path={destination.path}
 								render={() => <destination.component />}
 							/>
-						);
+						}else{
+							return (
+								<PrivateRoute
+								key={i}
+									exact
+									path={destination.path}
+									component={
+										<destination.component />
+									}
+								/>
+							);
+						}
+
 					})}
+
 				</Switch>
 			</div>
 			<Footer />
