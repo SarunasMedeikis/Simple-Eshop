@@ -1,10 +1,10 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
-import { BrowserRouter } from "react-router-dom"
-import UserProvider from "./Providers/UserProvider"
+import React from "react";
+import ReactDOM from "react-dom";
+import "./index.css";
+import App from "./App";
+import * as serviceWorker from "./serviceWorker";
+import { BrowserRouter } from "react-router-dom";
+import UserProvider from "./Providers/UserProvider";
 
 // For colours
 import { createMuiTheme, ThemeProvider } from "@material-ui/core";
@@ -19,8 +19,6 @@ const theme = createMuiTheme({
 		},
 	},
 });
-
-
 
 ReactDOM.render(
 	<BrowserRouter>

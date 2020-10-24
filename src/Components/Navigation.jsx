@@ -15,6 +15,8 @@ import PersonIcon from "@material-ui/icons/Person";
 import FavoriteIcon from "@material-ui/icons/Favorite";
 import ShoppingCartIcon from "@material-ui/icons/ShoppingCart";
 
+// Importing user context
+import {UserContext} from "../Providers/UserProvider"
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -38,6 +40,7 @@ const useStyles = makeStyles((theme) => ({
 
 
 const Navigation = (props) => {
+	const user = React.useContext(UserContext);
     const classes = useStyles();
     const { history } = props;
 
@@ -52,46 +55,55 @@ const Navigation = (props) => {
 					<Typography variant='h6' className={classes.menu}>
 						TeaStore
 					</Typography>
-						<Link
-							className={classes.linkSpacing}
-							variant='button'
-							underline='hover'
-							color='inherit'
-							onClick={() => handleMenuClick("/")}>
-							Home
-						</Link>
-						<Link
-							className={classes.linkSpacing}
-							variant='button'
-							underline='hover'
-							color='inherit'
-							onClick={() => handleMenuClick("/tea")}>
-							Tea
-						</Link>
-						<Link
-							className={classes.linkSpacing}
-							variant='button'
-							color='inherit'
-							onClick={() => handleMenuClick("/coffee")}>
-							Coffee
-						</Link>
-						<Link
-							className={classes.root}
-							variant='button'
-							color='inherit'
-							onClick={() => handleMenuClick("/about")}>
-							About
-						</Link>
+					<Link
+						className={classes.linkSpacing}
+						variant='button'
+						underline='hover'
+						color='inherit'
+						onClick={() => handleMenuClick("/")}>
+						Home
+					</Link>
+					<Link
+						className={classes.linkSpacing}
+						variant='button'
+						underline='hover'
+						color='inherit'
+						onClick={() => handleMenuClick("/tea")}>
+						Tea
+					</Link>
+					<Link
+						className={classes.linkSpacing}
+						variant='button'
+						color='inherit'
+						onClick={() => handleMenuClick("/coffee")}>
+						Coffee
+					</Link>
+					<Link
+						className={classes.root}
+						variant='button'
+						color='inherit'
+						onClick={() => handleMenuClick("/about")}>
+						About
+					</Link>
 					<IconButton aria-label='search' color='inherit'>
 						<SearchIcon />
 					</IconButton>
 					<IconButton aria-label='search' color='inherit'>
-						<PersonIcon />
+						<PersonIcon
+							onClick={() =>
+								user
+									? handleMenuClick("/profile")
+									: handleMenuClick("/signin")
+							}
+						/>
 					</IconButton>
 					<IconButton aria-label='search' color='inherit'>
 						<FavoriteIcon />
 					</IconButton>
-					<IconButton className={classes.menuNavLeft} aria-label='search' color='inherit'>
+					<IconButton
+						className={classes.menuNavLeft}
+						aria-label='search'
+						color='inherit'>
 						<ShoppingCartIcon />
 					</IconButton>
 				</Toolbar>

@@ -8,7 +8,6 @@ import {
 import Navigation from "./Components/Navigation";
 import { makeStyles } from "@material-ui/core/styles";
 import Footer from "./Components/Footer";
-import PrivateRoute from "./Components/PrivateRoute";
 import {UserContext} from "./Providers/UserProvider"
 
 const useStyles = makeStyles((theme) => ({
@@ -20,37 +19,13 @@ const useStyles = makeStyles((theme) => ({
 
 function App() {
 	const user = useContext(UserContext);
-
+	
 	const classes = useStyles();
 	return (
 		<div>
 			<Navigation />
 			<div className={classes.root}>
-				<Switch>
-					{Routes.map((destination,i) => {
-						if(destination.publicRoute){
-							return <Route
-								key={i}
-								exact
-								path={destination.path}
-								render={() => <destination.component />}
-							/>
-						}else{
-							return (
-								<PrivateRoute
-								key={i}
-									exact
-									path={destination.path}
-									component={
-										<destination.component />
-									}
-								/>
-							);
-						}
-
-					})}
-
-				</Switch>
+			<Routes />
 			</div>
 			<Footer />
 		</div>

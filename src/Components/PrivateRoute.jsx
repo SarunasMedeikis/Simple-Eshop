@@ -3,10 +3,12 @@ import { Route, Redirect } from "react-router-dom";
 import { UserContext } from "../Providers/UserProvider";
 
 const CheckForUser = () => {
-    let user = useContext(UserContext);
-    console.log("USER" );
-    console.log(user);
-    return user;
+	let user = useContext(UserContext);
+	if(user){
+		return true;
+	}else{
+		return false;
+	}
 }
 
 const PrivateRoute = ({ component: Component, ...rest }) => (
