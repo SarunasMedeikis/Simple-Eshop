@@ -77,7 +77,7 @@ const SingleTea = ({item}) =>{
 						<StarIcon />
 					</Box>
 				}></CardHeader>
-			<CardActionArea component={RouterLink} to={`/product/${item._id}`}>
+			<CardActionArea component={RouterLink} to={`/product/${item.id}`}>
 				<CardMedia
 					className={classes.media}
 					image={item.photo}

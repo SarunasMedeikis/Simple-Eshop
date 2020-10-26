@@ -124,11 +124,102 @@ export const readUserAddress = async (userId) => {
 		.get()
 		.then(function (querySnapshot) {
 			querySnapshot.forEach(function (doc) {
-				tempDataArray.push(doc.data());
+				let tempObject = doc.data();
+				tempObject = { ...tempObject, id: doc.id };
+				tempDataArray.push(tempObject);
 			});
 		})
 		.catch((e) => {
 			console.log("ERROR GETTING ADDRESSES", e);
+		});
+
+	return tempDataArray;
+};
+
+// Update address information
+export const updateAddressInformation = async (
+	userId,
+	addressId,
+	tempAddress,
+) => {
+	let userRef = db
+		.collection("users")
+		.doc(userId)
+		.collection("deliveryAddresses")
+		.doc(addressId);
+	await userRef
+		.update({
+			addressLine1: tempAddress.addressLine1,
+			addressLine2: tempAddress.addressLine2,
+			phone: tempAddress.phone,
+			country: tempAddress.country,
+			firstName: tempAddress.firstName,
+			lastName: tempAddress.lastName,
+			postCode: tempAddress.postCode,
+		})
+		.then(() => {
+			console.log("Address Succesfully updated!");
+		})
+		.catch((e) => {
+			console.log("Error updating document", e);
+		});
+};
+
+// Add new Payment card to DB
+export const addNewPaymentCardToDB = async (userId, cardData) => {
+	let userRef = db
+		.collection("users")
+		.doc(userId)
+		.collection("paymentCards")
+		.doc();
+	userRef
+		.set(cardData)
+		.then(console.log("Card added succesfully"))
+		.catch((e) => {
+			console.log("Error adding card", e);
+		});
+};
+
+//To read user Addresses
+export const readUserCards = async (userId) => {
+	let userRef = db
+		.collection("users")
+		.doc(userId)
+		.collection("paymentCards");
+	let tempDataArray = [];
+	await userRef
+		.get()
+		.then(function (querySnapshot) {
+			querySnapshot.forEach(function (doc) {
+				let tempObject = doc.data();
+				tempObject = { ...tempObject, id: doc.id };
+				tempDataArray.push(tempObject);
+			});
+		})
+		.catch((e) => {
+			console.log("ERROR GETTING PAYMENT CARDS", e);
+		});
+
+	return tempDataArray;
+};
+
+// Product read
+
+export const readProductsFromDb = async (category) => {
+	let productRef = db.collection("products");
+	let tempDataArray = [];
+	await productRef
+		.where("category", "array-contains", category)
+		.get()
+		.then(function (querySnapshot) {
+			querySnapshot.forEach(function (doc) {
+				let tempObject = doc.data();
+				tempObject = { ...tempObject, id: doc.id };
+				tempDataArray.push(tempObject);
+			});
+		})
+		.catch((e) => {
+			console.log("error getting products", e);
 		});
 
 	return tempDataArray;

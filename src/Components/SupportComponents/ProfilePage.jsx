@@ -7,6 +7,9 @@ import {
 	updateOrderInfo,
 	addAddressToDb,
 	readUserAddress,
+	updateAddressInformation,
+	addNewPaymentCardToDB,
+	readUserCards,
 } from "../Firebase/firebase";
 
 import { makeStyles } from "@material-ui/core/styles";
@@ -19,13 +22,6 @@ import ListItemText from "@material-ui/core/ListItemText";
 import { Link } from "@material-ui/core";
 import { Link as RouterLink } from "react-router-dom";
 import Avatar from "@material-ui/core/Avatar";
-import {
-	CountryDropdown,
-	RegionDropdown,
-	CountryRegionData,
-} from "react-country-region-selector";
-
-import FormHelperText from "@material-ui/core/FormHelperText";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 import InputLabel from "@material-ui/core/InputLabel";
@@ -33,13 +29,11 @@ import MenuItem from "@material-ui/core/MenuItem";
 
 import Card from "@material-ui/core/Card";
 import CardHeader from "@material-ui/core/CardHeader";
-import CardMedia from "@material-ui/core/CardMedia";
 import CardContent from "@material-ui/core/CardContent";
 import CardActions from "@material-ui/core/CardActions";
 import Collapse from "@material-ui/core/Collapse";
 import IconButton from "@material-ui/core/IconButton";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import MoreVertIcon from "@material-ui/icons/MoreVert";
 import clsx from "clsx";
 
 const useStyles = makeStyles((theme) => ({
@@ -85,6 +79,13 @@ const useStyles = makeStyles((theme) => ({
 	AddressExpandOpen: {
 		transform: "rotate(180deg)",
 	},
+	// Payments
+	paymentsForm: {
+		display: "flex",
+		flexDirection: "column",
+		width: "25ch",
+		margin: theme.spacing(1),
+	},
 }));
 
 const ProfilePage = () => {
@@ -110,6 +111,8 @@ const ProfilePage = () => {
 			return <Orders />;
 		} else if (toDisplay === "Addresses") {
 			return <Addresses />;
+		} else if (toDisplay === "Payments") {
+			return <Payments />;
 		} else if (toDisplay === "SignOut") {
 			return signUserOutHandler();
 		}
@@ -133,7 +136,9 @@ const ProfilePage = () => {
 						onClick={() => setToDisplay("Addresses")}>
 						<ListItemText primary='Addresses' />
 					</ListItem>
-					<ListItem button>
+					<ListItem
+						button
+						onClick={() => setToDisplay("Payments")}>
 						<ListItemText primary='Payments' />
 					</ListItem>
 					<ListItem button>
@@ -504,75 +509,169 @@ const DisplayOtherAddresses = () => {
 		});
 	}, [user.uid]);
 
-	return (
-		<Card className={classes.AddressCardRoot}>
-			<CardHeader
-				title='Shrimp and Chorizo Paella'
-				subheader='September 14, 2016'
-			/>
-			<CardContent>
-				<Typography
-					variant='body2'
-					color='textSecondary'
-					component='p'>
-					This impressive paella is a perfect party dish and
-					a fun meal to cook together with your guests. Add
-					1 cup of frozen peas along with the mussels, if
-					you like.
-				</Typography>
-			</CardContent>
-			<CardActions disableSpacing>
-				<IconButton
-					className={clsx(classes.expand, {
-						[classes.expandOpen]: expanded,
-					})}
-					onClick={handleExpandClick}
-					aria-expanded={expanded}
-					aria-label='show more'>
-					<ExpandMoreIcon />
-				</IconButton>
-			</CardActions>
-			<Collapse in={expanded} timeout='auto' unmountOnExit>
+	const [updatedAddress, setUpdatedAddress] = React.useState({});
+
+	const handleChange = (event) => {
+		setUpdatedAddress({
+			...updatedAddress,
+			[event.target.name]: event.target.value,
+		});
+	};
+
+	let itemId;
+	const updateAddressInDbHandler = (event) => {
+		event.preventDefault();
+		const tempAddress = {
+			addressLine1: updatedAddress.addressLine1,
+			addressLine2: updatedAddress.addressLine2,
+			phone: updatedAddress.phone,
+			country: updatedAddress.country,
+			firstName: updatedAddress.firstName,
+			lastName: updatedAddress.lastName,
+			postCode: updatedAddress.postCode,
+		};
+		updateAddressInformation(user.uid, itemId, tempAddress);
+	};
+	return allAddresses.map((item) => {
+		itemId = item.id;
+		return (
+			<Card
+				key={`${item.lastName}${item.phone}`}
+				className={classes.AddressCardRoot}>
+				<CardHeader
+					title={`${item.firstName}  ${item.lastName}`}
+					subheader={`${item.phone}`}
+				/>
 				<CardContent>
-					<Typography paragraph>Method:</Typography>
-					<Typography paragraph>
-						Heat 1/2 cup of the broth in a pot until
-						simmering, add saffron and set aside for 10
-						minutes.
+					<Typography
+						variant='body2'
+						color='textSecondary'
+						component='p'>
+						{item.addressLine1}
 					</Typography>
-					<Typography paragraph>
-						Heat oil in a (14- to 16-inch) paella pan or a
-						large, deep skillet over medium-high heat. Add
-						chicken, shrimp and chorizo, and cook,
-						stirring occasionally until lightly browned, 6
-						to 8 minutes. Transfer shrimp to a large plate
-						and set aside, leaving chicken and chorizo in
-						the pan. Add pimentón, bay leaves, garlic,
-						tomatoes, onion, salt and pepper, and cook,
-						stirring often until thickened and fragrant,
-						about 10 minutes. Add saffron broth and
-						remaining 4 1/2 cups chicken broth; bring to a
-						boil.
+					<Typography
+						variant='body2'
+						color='textSecondary'
+						component='p'>
+						{item.addressLine2}
 					</Typography>
-					<Typography paragraph>
-						Add rice and stir very gently to distribute.
-						Top with artichokes and peppers, and cook
-						without stirring, until most of the liquid is
-						absorbed, 15 to 18 minutes. Reduce heat to
-						medium-low, add reserved shrimp and mussels,
-						tucking them down into the rice, and cook
-						again without stirring, until mussels have
-						opened and rice is just tender, 5 to 7 minutes
-						more. (Discard any mussels that don’t open.)
+					<Typography
+						variant='body2'
+						color='textSecondary'
+						component='p'>
+						{item.postCode}
 					</Typography>
-					<Typography>
-						Set aside off of the heat to let rest for 10
-						minutes, and then serve.
+					<Typography
+						variant='body2'
+						color='textSecondary'
+						component='p'>
+						{item.country}
 					</Typography>
 				</CardContent>
-			</Collapse>
-		</Card>
-	);
+				<CardActions disableSpacing>
+					<IconButton
+						className={clsx(classes.expand, {
+							[classes.expandOpen]: expanded,
+						})}
+						onClick={handleExpandClick}
+						aria-expanded={expanded}
+						aria-label='show more'>
+						<ExpandMoreIcon />
+					</IconButton>
+				</CardActions>
+				<Collapse in={expanded} timeout='auto' unmountOnExit>
+					<CardContent>
+						<Typography
+							variant='body2'
+							color='textSecondary'
+							component='p'>
+							Update address information
+						</Typography>
+						{/* TO UPDATE ADDRESS */}
+
+						<form
+							className={classes.profileFlex}
+							onSubmit={updateAddressInDbHandler}
+							noValidate
+							autoComplete='on'>
+							<TextField
+								id='address-firstname'
+								label='Firstname'
+								margin='normal'
+								variant='outlined'
+								type='firstname'
+								name='firstName'
+								value={updatedAddress.firstName}
+								onChange={handleChange}
+							/>
+							<TextField
+								id='address-lastname'
+								label='Lastname'
+								margin='normal'
+								variant='outlined'
+								type='lastname'
+								name='lastName'
+								value={updatedAddress.lastName}
+								onChange={handleChange}
+							/>
+							<TextField
+								id='address-line1'
+								label='Address Line 1'
+								type='address1'
+								margin='normal'
+								variant='outlined'
+								name='addressLine1'
+								value={updatedAddress.addressLine1}
+								onChange={handleChange}
+							/>
+							<TextField
+								id='address-line2'
+								label='Address Line 2'
+								type='address2'
+								margin='normal'
+								variant='outlined'
+								name='addressLine2'
+								value={updatedAddress.addressLine2}
+								onChange={handleChange}
+							/>
+							<TextField
+								id='address-phone'
+								label='Phone Number'
+								type='phone'
+								margin='normal'
+								variant='outlined'
+								name='phone'
+								value={updatedAddress.phone}
+								onChange={handleChange}
+							/>
+							<TextField
+								id='address-postcode'
+								label='Postcode'
+								type='postcode'
+								margin='normal'
+								variant='outlined'
+								name='postCode'
+								value={updatedAddress.postcode}
+								onChange={handleChange}
+							/>
+
+							<CountrySelect
+								address={updatedAddress}
+								setAddress={setUpdatedAddress}
+							/>
+
+							<Button
+								type='submit'
+								variant='contained'
+								color='primary'>
+								Submit
+							</Button>
+						</form>
+					</CardContent>
+				</Collapse>
+			</Card>
+		);
+	});
 };
 
 const CountrySelect = ({ address, setAddress, handleChange }) => {
@@ -969,6 +1068,229 @@ const CountrySelect = ({ address, setAddress, handleChange }) => {
 			</Select>
 		</FormControl>
 	);
+};
+
+const Payments = () => {
+	const user = React.useContext(UserContext);
+	const classes = useStyles();
+	const [addCard, setAddCard] = React.useState({
+		name: "",
+		mmyy: "",
+		cvc: "",
+		cardNumber: "",
+	});
+
+	function handleChange(event) {
+		setAddCard({
+			...addCard,
+			[event.target.name]: event.target.value,
+		});
+	}
+
+	const addNewCardToDbHandler = (event) => {
+		event.preventDefault();
+		addNewPaymentCardToDB(user.uid, addCard)
+			.then(console.log("Success"))
+			.catch((e) => {
+				console.log("error", e);
+			});
+	};
+	return (
+		<Grid container spacing={2}>
+			<Grid item xs={5}>
+				<form
+					className={classes.paymentsForm}
+					noValidate
+					autoComplete='off'
+					onSubmit={addNewCardToDbHandler}>
+					<TextField
+						id='standard-basic'
+						label='Name on card'
+						name='name'
+						value={addCard.name}
+						onChange={handleChange}
+					/>
+					<TextField
+						id='standard-basic'
+						label='Card Number'
+						name='cardNumber'
+						value={addCard.cardNumber}
+						onChange={handleChange}
+					/>
+					<TextField
+						id='standard-basic'
+						label='MM/YY'
+						name='mmyy'
+						value={addCard.mmyy}
+						onChange={handleChange}
+					/>
+					<TextField
+						id='standard-basic'
+						label='CVC'
+						name='cvc'
+						value={addCard.cvc}
+						onChange={handleChange}
+					/>
+					<Button
+						type='submit'
+						variant='contained'
+						color='primary'>
+						Add a new card
+					</Button>
+				</form>
+			</Grid>
+			<Grid item xs={5}>
+				<DisplayAddedCards />
+			</Grid>
+		</Grid>
+	);
+};
+
+const DisplayAddedCards = () => {
+	const user = React.useContext(UserContext);
+	const classes = useStyles();
+
+	const [expanded, setExpanded] = React.useState(false);
+
+	const handleExpandClick = () => {
+		setExpanded(!expanded);
+	};
+
+	const [allCards, setAllCards] = React.useState([]);
+
+	React.useEffect(() => {
+		readUserCards(user.uid).then((res) => {
+			setAllCards(res);
+			console.log(res);
+		});
+	}, [user.uid]);
+
+	const [updatedCard, setUpdatedCard] = React.useState({});
+
+	const handleChange = (event) => {
+		setUpdatedCard({
+			...updatedCard,
+			[event.target.name]: event.target.value,
+		});
+	};
+
+	let itemId;
+	const updateAddressInDbHandler = (event) => {
+		event.preventDefault();
+		const tempCard = {
+			name: updatedCard.name,
+			mmyy: updatedCard.mmyy,
+			cvc: updatedCard.cvc,
+			cardNumber: updatedCard.cardNumber,
+		};
+		updateAddressInformation(user.uid, itemId, tempCard);
+	};
+	return allCards.map((item) => {
+		itemId = item.id;
+		return (
+			<Card
+				key={`${item.name}${item.cvc}`}
+				className={classes.AddressCardRoot}>
+				<CardHeader title={`${item.name}`} />
+				<CardContent>
+					<Typography
+						variant='body2'
+						color='textSecondary'
+						component='p'>
+						{item.cardNumber}
+					</Typography>
+					<Typography
+						variant='body2'
+						color='textSecondary'
+						component='p'>
+						{item.mmyy}
+					</Typography>
+					<Typography
+						variant='body2'
+						color='textSecondary'
+						component='p'>
+						{item.cvc}
+					</Typography>
+				</CardContent>
+				<CardActions disableSpacing>
+					<IconButton
+						className={clsx(classes.expand, {
+							[classes.expandOpen]: expanded,
+						})}
+						onClick={handleExpandClick}
+						aria-expanded={expanded}
+						aria-label='show more'>
+						<ExpandMoreIcon />
+					</IconButton>
+				</CardActions>
+				<Collapse in={expanded} timeout='auto' unmountOnExit>
+					<CardContent>
+						<Typography
+							variant='body2'
+							color='textSecondary'
+							component='p'>
+							Update address information
+						</Typography>
+						{/* TO UPDATE PAYMENT CARD INFO */}
+
+						<form
+							className={classes.profileFlex}
+							onSubmit={updateAddressInDbHandler}
+							noValidate
+							autoComplete='on'>
+							<TextField
+								id='address-firstname'
+								label='Name on card'
+								margin='normal'
+								variant='outlined'
+								type='name'
+								name='name'
+								value={updatedCard.name}
+								onChange={handleChange}
+							/>
+							<TextField
+								id='address-lastname'
+								label='Card Number'
+								margin='normal'
+								variant='outlined'
+								type='cardNumber'
+								name='cardNumber'
+								value={updatedCard.cardNumber}
+								onChange={handleChange}
+							/>
+							<TextField
+								id='address-line1'
+								label='MMYY'
+								type='mmyy'
+								margin='normal'
+								variant='outlined'
+								name='mmyy'
+								value={updatedCard.mmyy}
+								onChange={handleChange}
+							/>
+							<TextField
+								id='address-line2'
+								label='CVC'
+								type='cvc'
+								margin='normal'
+								variant='outlined'
+								name='cvc'
+								value={updatedCard.cvc}
+								onChange={handleChange}
+							/>
+
+							<Button
+								type='submit'
+								variant='contained'
+								color='primary'>
+								Submit
+							</Button>
+						</form>
+					</CardContent>
+				</Collapse>
+			</Card>
+		);
+	});
 };
 
 export default ProfilePage;
