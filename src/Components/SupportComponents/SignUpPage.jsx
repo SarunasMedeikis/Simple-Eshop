@@ -1,10 +1,7 @@
 import React from "react";
-import { Grid } from "@material-ui/core";
 import { Typography, Box, Button } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
-import Visibility from "@material-ui/icons/Visibility";
-import VisibilityOff from "@material-ui/icons/VisibilityOff";
 import { auth, addUserDataToDb } from "../Firebase/firebase";
 import { useHistory } from "react-router-dom";
 

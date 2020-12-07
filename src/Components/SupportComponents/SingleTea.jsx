@@ -1,6 +1,6 @@
 import React from "react";
-import { CardActionArea, Grid, IconButton } from "@material-ui/core";
-import { Typography, Box, Button } from "@material-ui/core";
+import { CardActionArea, IconButton } from "@material-ui/core";
+import { Typography, Box } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import Card from "@material-ui/core/Card";
 import CardHeader from "@material-ui/core/CardHeader";
@@ -16,16 +16,19 @@ import AddShoppingCartIcon from "@material-ui/icons/AddShoppingCart";
 
 // For select Imports
 import InputLabel from "@material-ui/core/InputLabel";
-import MenuItem from "@material-ui/core/MenuItem";
-import FormHelperText from "@material-ui/core/FormHelperText";
 import FormControl from "@material-ui/core/FormControl";
-import Select from "@material-ui/core/Select";
 import NativeSelect from "@material-ui/core/NativeSelect";
 
 // For Router
-
 import { Link as RouterLink } from "react-router-dom";
-import Link from "@material-ui/core/Link";
+
+// From firebase
+import {addToCart} from "../Firebase/firebase"
+
+// Importing user context
+import {UserContext} from "../../Providers/UserProvider"
+
+
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -64,6 +67,17 @@ const useStyles = makeStyles((theme) => ({
 
 
 const SingleTea = ({item}) =>{
+	const user = React.useContext(UserContext);
+	
+	const addToCartHandler = (event, item) => {
+		event.preventDefault();
+		addToCart(user.uid, item).then(()=>{
+			console.log("Added item to cart.");
+		}).catch((e)=>{
+			console.log("Error adding to cart", e);
+		})
+	}
+
     const [size, setSize] = React.useState("");
     const classes = useStyles();
     return (
@@ -100,7 +114,7 @@ const SingleTea = ({item}) =>{
 					</Box>
 				</Typography>
 				<ChooseGrams size={size} setSize={setSize} />
-				<IconButton className={classes.addToCart}>
+				<IconButton className={classes.addToCart} onClick={(event) => addToCartHandler(event, item)}>
 					<AddShoppingCartIcon className={classes.cartIcon} />
 				</IconButton>
 			</CardActions>

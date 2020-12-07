@@ -1,7 +1,5 @@
 import React from "react";
 import { Grid } from "@material-ui/core";
-import { Typography, Box, Button } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
 import { readProductsFromDb } from "./Firebase/firebase"
 
 import SingleTea from "./SupportComponents/SingleTea";
@@ -22,7 +20,7 @@ const Tea = () => {
 		<Grid container spacing={2}>
 			{teaData.map((item) => {
 				return (
-					<Grid item xs={3}>
+					<Grid key={item.id} item xs={3}>
 						<SingleTea key={item.id} item={item} />
 					</Grid>
 				);

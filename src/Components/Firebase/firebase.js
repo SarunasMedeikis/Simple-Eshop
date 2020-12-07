@@ -16,7 +16,7 @@ firebase.initializeApp(config);
 
 export const provider = new firebase.auth.GoogleAuthProvider();
 export const auth = firebase.auth();
-const db = firebase.firestore();
+export const db = firebase.firestore();
 export const addUserDataToDb = async (tempUser) => {
 	await db
 		.collection("users")
@@ -225,4 +225,54 @@ export const readProductsFromDb = async (category) => {
 	return tempDataArray;
 };
 
+// Add to cart
+export const addToCart = async (userId, item) => {
+	let userRef = db
+		.collection("users")
+		.doc(userId)
+		.collection("cart")
+		.doc();
+	await userRef
+		.set({id:item.id, price:item.price})
+		.then((res)=>{
+
+		})
+		.catch((e) => {
+			console.log("Error adding card", e);
+		});
+};
+
+
+// Read all cart items
+export const getCartDocuments =  async(userId) => {
+	let productRef = db.collection("products");
+	let dataArray = [];
+	let userRef = db
+		.collection("users")
+		.doc(userId)
+		.collection("cart")
+	 await userRef
+		.get()
+		.then((snapshot)=>{
+			snapshot.docs.map((doc)=> (
+				 productRef.doc(doc.data().id).get()
+					.then((doc) => {
+						let tempData = {
+							title: doc.data().title,
+							photo:doc.data().photo,
+							productId: doc.id,
+							price: doc.data().price,
+						}
+						dataArray.push(tempData)
+					})
+			));
+		}).catch((e)=>{
+			console.log("ERROR GETTING CART DOCS ", e);
+		})
+
+		return dataArray;
+};
+
+
 export default firebase;
+
